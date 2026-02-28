@@ -1,3 +1,14 @@
+## 1.1.2 (28 Feb 2026)
+
+* Rename app to Kawa+
+* Add Left Option + Left Shift modifier toggle for Korean/Japanese input switching
+* Requires Input Monitoring permission
+
+## 1.1.1 (28 Feb 2026)
+
+* Fix Xcode build warnings by updating deployment target
+* Update storyboard and scheme for compatibility with modern Xcode
+
 ## 1.1.0 (10 Nov 2017)
 
 * Remove previous notifications on new one (#17)
