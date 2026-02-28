@@ -23,6 +23,17 @@ The prebuilt binaries can be found in [Releases](https://github.com/utatti/kawa/
 
 Unzip `Kawa.zip` and move `Kawa.app` to `Applications`.
 
+> **Note**: Prebuilt binaries are **arm64 only** (Apple Silicon).
+
+## Modifier Toggle (Kawa+)
+
+Kawa+ includes a built-in modifier-only shortcut: pressing **Left Option + Left Shift** toggles between Korean and Japanese input sources.
+
+- No configuration needed — works automatically alongside existing per-source shortcuts
+- Only responds to **left-side** modifier keys (right Option/Shift are ignored)
+- Requires **Input Monitoring** permission (macOS will prompt on first launch)
+- Does not interfere with other modifier combinations (Cmd+Option+Shift, etc.)
+
 ## Caveats
 
 ### CJKV input sources
