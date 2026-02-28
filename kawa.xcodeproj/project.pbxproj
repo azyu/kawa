@@ -131,7 +131,7 @@
 			dependencies = (
 			);
 			name = kawa;
-			productName = kawa;
+			productName = "Kawa+";
 			productReference = CC6D8EC81B654099005682C0 /* Kawa.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -335,9 +335,9 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "net.noraesae.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = Kawa;
+				PRODUCT_NAME = "Kawa+";
 				SWIFT_OBJC_BRIDGING_HEADER = kawa/BridgingHeader.h;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 5.0;
@@ -359,10 +359,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "net.noraesae.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = Kawa;
+				PRODUCT_NAME = "Kawa+";
 				SWIFT_OBJC_BRIDGING_HEADER = kawa/BridgingHeader.h;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 5.0;
