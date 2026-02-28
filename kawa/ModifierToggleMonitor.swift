@@ -6,16 +6,25 @@ class ModifierToggleMonitor {
 
   private let koreanSourceID = "com.apple.inputmethod.Korean.2SetKorean"
   private let japaneseSourceID = "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese"
+  private let englishSourceIDs = ["com.apple.keylayout.ABC", "com.apple.keylayout.US"]
 
   private let leftOptionKeyCode: UInt16 = 0x3A
   private let leftShiftKeyCode: UInt16 = 0x38
+  private let spaceKeyCode: UInt16 = 0x31
 
   private var pressedModifiers: Set<UInt16> = []
   private var eventTap: CFMachPort?
   private var runLoopSource: CFRunLoopSource?
+  private var localKeyMonitor: Any?
+
+  let shiftSpaceMonitor = ShiftSpaceHIDMonitor()
 
   func start() {
     guard eventTap == nil else { return }
+
+    if !CGPreflightListenEventAccess() {
+      CGRequestListenEventAccess()
+    }
 
     let eventMask = CGEventMask(1 << CGEventType.flagsChanged.rawValue)
 
@@ -24,14 +33,22 @@ class ModifierToggleMonitor {
       place: .headInsertEventTap,
       options: .listenOnly,
       eventsOfInterest: eventMask,
-      callback: { _, _, event, refcon -> Unmanaged<CGEvent>? in
+      callback: { _, type, event, refcon -> Unmanaged<CGEvent>? in
         let monitor = Unmanaged<ModifierToggleMonitor>.fromOpaque(refcon!).takeUnretainedValue()
+
+        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+          if let tap = monitor.eventTap {
+            CGEvent.tapEnable(tap: tap, enable: true)
+          }
+          monitor.pressedModifiers.removeAll()
+          return Unmanaged.passUnretained(event)
+        }
+
         monitor.handleFlagsChanged(event)
         return Unmanaged.passUnretained(event)
       },
       userInfo: Unmanaged.passUnretained(self).toOpaque()
     ) else {
-      NSLog("ModifierToggleMonitor: Failed to create event tap. Input Monitoring permission may be required.")
       return
     }
 
@@ -40,9 +57,15 @@ class ModifierToggleMonitor {
     runLoopSource = source
     CFRunLoopAddSource(CFRunLoopGetCurrent(), source, .commonModes)
     CGEvent.tapEnable(tap: tap, enable: true)
+
+    startShiftSpaceMonitor()
+    startLocalKeyMonitor()
   }
 
   func stop() {
+    stopLocalKeyMonitor()
+    stopShiftSpaceMonitor()
+
     if let source = runLoopSource {
       CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, .commonModes)
       runLoopSource = nil
@@ -55,17 +78,56 @@ class ModifierToggleMonitor {
     pressedModifiers.removeAll()
   }
 
+  // MARK: - Shift+Space HID Monitor
+
+  private func startShiftSpaceMonitor() {
+    guard PermanentStorage.shiftSpaceToggleEnabled else { return }
+    shiftSpaceMonitor.onTrigger = { [weak self] in
+      self?.toggleKoreanEnglish()
+    }
+    shiftSpaceMonitor.start()
+  }
+
+  private func stopShiftSpaceMonitor() {
+    shiftSpaceMonitor.stop()
+    shiftSpaceMonitor.onTrigger = nil
+  }
+
+  // MARK: - Local Key Monitor (beep suppression)
+
+  private func startLocalKeyMonitor() {
+    guard localKeyMonitor == nil else { return }
+    guard PermanentStorage.shiftSpaceToggleEnabled else { return }
+    localKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+      guard let self = self else { return event }
+      if self.shouldConsumeAsShiftSpace(event) {
+        self.toggleKoreanEnglish()
+        return nil
+      }
+      return event
+    }
+  }
+
+  private func stopLocalKeyMonitor() {
+    if let monitor = localKeyMonitor {
+      NSEvent.removeMonitor(monitor)
+      localKeyMonitor = nil
+    }
+  }
+
+  // MARK: - CGEvent flagsChanged (Left Option + Left Shift toggle)
+
   private func handleFlagsChanged(_ event: CGEvent) {
     let keyCode = UInt16(event.getIntegerValueField(.keyboardEventKeycode))
+    let flags = event.flags
+
+    guard PermanentStorage.modifierToggleEnabled else { return }
 
     guard keyCode == leftOptionKeyCode || keyCode == leftShiftKeyCode else {
       pressedModifiers.removeAll()
       return
     }
 
-    let flags = event.flags
-
-    // Check if the key was pressed or released by examining relevant flags
     let isOptionPressed = flags.contains(.maskAlternate)
     let isShiftPressed = flags.contains(.maskShift)
 
@@ -83,11 +145,40 @@ class ModifierToggleMonitor {
       }
     }
 
-    // Trigger only when exactly Left Option + Left Shift are pressed, with no other modifiers
     let unwantedFlags: CGEventFlags = [.maskCommand, .maskControl]
     if pressedModifiers == [leftOptionKeyCode, leftShiftKeyCode] && flags.isDisjoint(with: unwantedFlags) {
       toggle()
       pressedModifiers.removeAll()
+    }
+  }
+
+  // MARK: - Shift+Space helpers
+
+  private func shouldConsumeAsShiftSpace(_ event: NSEvent) -> Bool {
+    guard PermanentStorage.shiftSpaceToggleEnabled else { return false }
+    guard event.keyCode == spaceKeyCode else { return false }
+    guard !event.isARepeat else { return false }
+    guard shiftSpaceMonitor.isLeftShiftDown else { return false }
+    let unwanted: NSEvent.ModifierFlags = [.command, .control, .option]
+    guard event.modifierFlags.isDisjoint(with: unwanted) else { return false }
+    return true
+  }
+
+  // MARK: - Input source switching
+
+  private func toggleKoreanEnglish() {
+    guard let currentSource = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue() else { return }
+    let currentID = currentSource.id
+
+    if currentID == koreanSourceID {
+      let sources = InputSource.sources
+      guard let english = sources.first(where: { self.englishSourceIDs.contains($0.id) }) else { return }
+      english.select()
+    } else if englishSourceIDs.contains(currentID) {
+      let sources = InputSource.sources
+      if let target = sources.first(where: { $0.id == koreanSourceID }) {
+        target.select()
+      }
     }
   }
 
@@ -104,7 +195,6 @@ class ModifierToggleMonitor {
       return
     }
 
-    // Find and select the target input source
     let sources = InputSource.sources
     if let target = sources.first(where: { $0.id == targetID }) {
       target.select()

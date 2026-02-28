@@ -170,6 +170,17 @@
                                                 <action selector="toggleModifierToggle:" target="8tD-vA-uhk" id="vNr-Hy-j7K"/>
                                             </connections>
                                         </button>
+                                        <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sSt-Kd-c3W">
+                                            <rect key="frame" x="14" y="54" width="382" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="check" title="Toggle Korean/English with Left Shift + Space" bezelStyle="regularSquare" imagePosition="left" inset="2" id="qRt-Pw-y5S">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="toggleShiftSpaceToggle:" target="8tD-vA-uhk" id="wXs-Jz-k8L"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                 </view>
                             </box>
@@ -188,6 +199,7 @@
                     </view>
                     <connections>
                         <outlet property="modifierToggleCheckbox" destination="mTg-Kd-b2V" id="kLm-Nw-p3R"/>
+                        <outlet property="shiftSpaceToggleCheckbox" destination="sSt-Kd-c3W" id="mNp-Rx-q4T"/>
                         <outlet property="showNotificationCheckbox" destination="Ix0-UJ-v3V" id="HxT-bb-QrP"/>
                     </connections>
                 </viewController>

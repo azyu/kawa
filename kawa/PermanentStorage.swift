@@ -16,6 +16,7 @@ class PermanentStorage {
     case showsNotification = "show-notification"
     case launchedForTheFirstTime = "launched-for-the-first-time"
     case modifierToggleEnabled = "modifier-toggle-enabled"
+    case shiftSpaceToggleEnabled = "shift-space-toggle-enabled"
   }
 
   static var showsNotification: Bool {
@@ -42,6 +43,15 @@ class PermanentStorage {
     }
     set {
       set(newValue, forKey: .modifierToggleEnabled)
+    }
+  }
+
+  static var shiftSpaceToggleEnabled: Bool {
+    get {
+      return bool(forKey: .shiftSpaceToggleEnabled, withDefault: true)
+    }
+    set {
+      set(newValue, forKey: .shiftSpaceToggleEnabled)
     }
   }
 }

@@ -7,7 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   var justLaunched: Bool = true
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
-    if PermanentStorage.modifierToggleEnabled {
+    if PermanentStorage.modifierToggleEnabled || PermanentStorage.shiftSpaceToggleEnabled {
       ModifierToggleMonitor.shared.start()
     }
 

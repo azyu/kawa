@@ -20,6 +20,7 @@
 		EE92E8FD1F6CC98E00559B7C /* TISInputSource+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE92E8FC1F6CC98E00559B7C /* TISInputSource+Additions.swift */; };
 		AA1B2C3D2F0A0000000A0001 /* ModifierToggleMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D2F0A0000000A0002 /* ModifierToggleMonitor.swift */; };
 		BB2D3E4F2F0B0000000B0001 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D3E4F2F0B0000000B0002 /* NotificationManager.swift */; };
+		CC3A4B5D2F0C0000000C0001 /* ShiftSpaceHIDMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3A4B5D2F0C0000000C0002 /* ShiftSpaceHIDMonitor.swift */; };
 		BB2D3E4F2F0B0000000B0003 /* MASShortcut in Frameworks */ = {isa = PBXBuildFile; productRef = BB2D3E4F2F0B0000000B0004 /* MASShortcut */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +41,7 @@
 		EE92E8FC1F6CC98E00559B7C /* TISInputSource+Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TISInputSource+Additions.swift"; sourceTree = "<group>"; };
 		AA1B2C3D2F0A0000000A0002 /* ModifierToggleMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModifierToggleMonitor.swift; sourceTree = "<group>"; };
 		BB2D3E4F2F0B0000000B0002 /* NotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		CC3A4B5D2F0C0000000C0002 /* ShiftSpaceHIDMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShiftSpaceHIDMonitor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 				CC6D8EEA1B654143005682C0 /* InputSourceManager.swift */,
 				AA1B2C3D2F0A0000000A0002 /* ModifierToggleMonitor.swift */,
 				BB2D3E4F2F0B0000000B0002 /* NotificationManager.swift */,
+				CC3A4B5D2F0C0000000C0002 /* ShiftSpaceHIDMonitor.swift */,
 				CC4181671B6CB3CB007DA794 /* PreferencesViewController.swift */,
 				CC6D8ED11B654099005682C0 /* Images.xcassets */,
 				CC6D8ED31B654099005682C0 /* Main.storyboard */,
@@ -185,6 +188,7 @@
 				CC69E0781B66415300A92F58 /* ShortcutViewController.swift in Sources */,
 				AA1B2C3D2F0A0000000A0001 /* ModifierToggleMonitor.swift in Sources */,
 				BB2D3E4F2F0B0000000B0001 /* NotificationManager.swift in Sources */,
+				CC3A4B5D2F0C0000000C0001 /* ShiftSpaceHIDMonitor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
