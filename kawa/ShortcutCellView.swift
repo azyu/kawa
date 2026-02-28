@@ -9,9 +9,10 @@ class ShortcutCellView: NSTableCellView {
   func setInputSource(_ inputSource: InputSource) {
     self.inputSource = inputSource
     shortcutKey = inputSource.id.replacingOccurrences(of: ".", with: "-")
-    shortcutView.associatedUserDefaultsKey = shortcutKey!
+    guard let shortcutKey = shortcutKey else { return }
+    shortcutView.associatedUserDefaultsKey = shortcutKey
     shortcutView.shortcutValueChange = self.shortcutValueDidChange
-    MASShortcutBinder.shared().bindShortcut(withDefaultsKey: shortcutKey!, toAction: selectInput)
+    MASShortcutBinder.shared().bindShortcut(withDefaultsKey: shortcutKey, toAction: selectInput)
   }
 
   func shortcutValueDidChange(_ sender: MASShortcutView?) {
@@ -21,8 +22,9 @@ class ShortcutCellView: NSTableCellView {
   }
 
   func resetShortcutBinder() {
-    MASShortcutBinder.shared().breakBinding(withDefaultsKey: shortcutKey!)
-    MASShortcutBinder.shared().bindShortcut(withDefaultsKey: shortcutKey!, toAction: selectInput)
+    guard let shortcutKey = shortcutKey else { return }
+    MASShortcutBinder.shared().breakBinding(withDefaultsKey: shortcutKey)
+    MASShortcutBinder.shared().bindShortcut(withDefaultsKey: shortcutKey, toAction: selectInput)
   }
 
   func selectInput() {
@@ -31,15 +33,7 @@ class ShortcutCellView: NSTableCellView {
     inputSource.select()
 
     if PermanentStorage.showsNotification {
-      showNotification(inputSource.name, icon: inputSource.icon)
+      NotificationManager.deliver(inputSource.name, icon: inputSource.icon)
     }
-  }
-
-  func showNotification(_ message: String, icon: NSImage?) {
-    NSUserNotificationCenter.default.removeAllDeliveredNotifications()
-    let notification = NSUserNotification()
-    notification.informativeText = message
-    notification.contentImage = icon
-    NSUserNotificationCenter.default.deliver(notification)
   }
 }

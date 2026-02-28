@@ -47,8 +47,12 @@ extension InputSource: Equatable {
 
 extension InputSource {
   static var sources: [InputSource] {
-    let inputSourceNSArray = TISCreateInputSourceList(nil, false).takeRetainedValue() as NSArray
-    let inputSourceList = inputSourceNSArray as! [TISInputSource]
+    guard let inputSourceNSArray = TISCreateInputSourceList(nil, false)?.takeRetainedValue() as NSArray? else {
+      return []
+    }
+    guard let inputSourceList = inputSourceNSArray as? [TISInputSource] else {
+      return []
+    }
 
     return inputSourceList
       .filter {

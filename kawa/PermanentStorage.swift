@@ -1,17 +1,15 @@
 import Cocoa
 
 class PermanentStorage {
-  private static func object<T>(forKey key: StorageKey, withDefault defaultValue: T) -> T {
-    if let val = UserDefaults.standard.object(forKey: key.rawValue) as? T {
-      return val
-    } else {
-      return defaultValue
+  private static func bool(forKey key: StorageKey, withDefault defaultValue: Bool) -> Bool {
+    if UserDefaults.standard.object(forKey: key.rawValue) != nil {
+      return UserDefaults.standard.bool(forKey: key.rawValue)
     }
+    return defaultValue
   }
 
-  private static func set<T>(_ value: T, forKey key: StorageKey) {
-    UserDefaults.standard.set((value as AnyObject), forKey: key.rawValue)
-    UserDefaults.standard.synchronize()
+  private static func set(_ value: Bool, forKey key: StorageKey) {
+    UserDefaults.standard.set(value, forKey: key.rawValue)
   }
 
   private enum StorageKey: String {
@@ -21,7 +19,7 @@ class PermanentStorage {
 
   static var showsNotification: Bool {
     get {
-      return object(forKey: .showsNotification, withDefault: false)
+      return bool(forKey: .showsNotification, withDefault: false)
     }
     set {
       set(newValue, forKey: .showsNotification)
@@ -30,7 +28,7 @@ class PermanentStorage {
 
   static var launchedForTheFirstTime: Bool {
     get {
-      return object(forKey: .launchedForTheFirstTime, withDefault: true)
+      return bool(forKey: .launchedForTheFirstTime, withDefault: true)
     }
     set {
       set(newValue, forKey: .launchedForTheFirstTime)

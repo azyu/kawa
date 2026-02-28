@@ -18,9 +18,14 @@ DerivedData
 *.xcuserstate
 /kawa.xcarchive
 Kawa.app
-.DS_Store
 
 # Carthage
-#
-Carthage/Checkouts
-Carthage/Build
+Carthage/
+
+# SPM
+kawa.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+
+# Build artifacts
+*.zip
+
+.DS_Store

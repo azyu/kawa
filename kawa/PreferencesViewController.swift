@@ -15,6 +15,9 @@ class PreferencesViewController: NSViewController {
 
   @IBAction func showNotification(_ sender: NSButton) {
     PermanentStorage.showsNotification = sender.state.boolValue
+    if sender.state.boolValue {
+      NotificationManager.requestAuthorizationIfNeeded()
+    }
   }
 }
 

@@ -44,23 +44,13 @@ sources like [CJKV](https://en.wikipedia.org/wiki/CJK_characters).
 
 ## Development
 
-We use [Carthage](https://github.com/Carthage/Carthage) as a dependency manager.
-You can find the latest releases of Carthage [here](https://github.com/Carthage/Carthage/releases),
-or just install it with [Homebrew](http://brew.sh).
-
-```bash
-$ brew update
-$ brew install carthage
-```
-
-To clone the Git repository of Kawa and install dependencies:
+Dependencies are managed via Swift Package Manager (SPM). Xcode resolves them automatically on first open.
 
 ```bash
 $ git clone git@github.com:utatti/kawa.git
-$ carthage bootstrap
 ```
 
-After dependency installation, open the project with Xcode.
+Open `kawa.xcodeproj` in Xcode and build.
 
 ## License
 

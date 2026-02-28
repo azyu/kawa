@@ -17,25 +17,11 @@
 		CC6D8ED21B654099005682C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC6D8ED11B654099005682C0 /* Images.xcassets */; };
 		CC6D8ED51B654099005682C0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CC6D8ED31B654099005682C0 /* Main.storyboard */; };
 		CC6D8EEB1B654143005682C0 /* InputSourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6D8EEA1B654143005682C0 /* InputSourceManager.swift */; };
-		CC9AAD2B1B71AA5400626F65 /* MASShortcut.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC9AAD2A1B71AA5400626F65 /* MASShortcut.framework */; };
-		CC9AAD2C1B71AA5400626F65 /* MASShortcut.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC9AAD2A1B71AA5400626F65 /* MASShortcut.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EE92E8FD1F6CC98E00559B7C /* TISInputSource+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE92E8FC1F6CC98E00559B7C /* TISInputSource+Additions.swift */; };
 		AA1B2C3D2F0A0000000A0001 /* ModifierToggleMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D2F0A0000000A0002 /* ModifierToggleMonitor.swift */; };
+		BB2D3E4F2F0B0000000B0001 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D3E4F2F0B0000000B0002 /* NotificationManager.swift */; };
+		BB2D3E4F2F0B0000000B0003 /* MASShortcut in Frameworks */ = {isa = PBXBuildFile; productRef = BB2D3E4F2F0B0000000B0004 /* MASShortcut */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		CC9AAD2D1B71AA5400626F65 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				CC9AAD2C1B71AA5400626F65 /* MASShortcut.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		CC1FEF6D1B685E9A005E9BC8 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
@@ -50,10 +36,10 @@
 		CC6D8ECD1B654099005682C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CC6D8ED11B654099005682C0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		CC6D8EEA1B654143005682C0 /* InputSourceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputSourceManager.swift; sourceTree = "<group>"; };
-		CC9AAD2A1B71AA5400626F65 /* MASShortcut.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MASShortcut.framework; path = Carthage/Build/Mac/MASShortcut.framework; sourceTree = "<group>"; };
 		35DBF9C028B15F7E002DFFC5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EE92E8FC1F6CC98E00559B7C /* TISInputSource+Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TISInputSource+Additions.swift"; sourceTree = "<group>"; };
 		AA1B2C3D2F0A0000000A0002 /* ModifierToggleMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModifierToggleMonitor.swift; sourceTree = "<group>"; };
+		BB2D3E4F2F0B0000000B0002 /* NotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,7 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC9AAD2B1B71AA5400626F65 /* MASShortcut.framework in Frameworks */,
+				BB2D3E4F2F0B0000000B0003 /* MASShortcut in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,7 +59,6 @@
 			children = (
 				CC6D8ECA1B654099005682C0 /* kawa */,
 				CC6D8EC91B654099005682C0 /* Products */,
-				CC9AAD2A1B71AA5400626F65 /* MASShortcut.framework */,
 			);
 			sourceTree = "<group>";
 		};
@@ -96,6 +81,7 @@
 				CC1FEF6E1B685FD3005E9BC8 /* ShortcutCellView.swift */,
 				CC6D8EEA1B654143005682C0 /* InputSourceManager.swift */,
 				AA1B2C3D2F0A0000000A0002 /* ModifierToggleMonitor.swift */,
+				BB2D3E4F2F0B0000000B0002 /* NotificationManager.swift */,
 				CC4181671B6CB3CB007DA794 /* PreferencesViewController.swift */,
 				CC6D8ED11B654099005682C0 /* Images.xcassets */,
 				CC6D8ED31B654099005682C0 /* Main.storyboard */,
@@ -124,7 +110,6 @@
 				CC6D8EC41B654099005682C0 /* Sources */,
 				CC6D8EC51B654099005682C0 /* Frameworks */,
 				CC6D8EC61B654099005682C0 /* Resources */,
-				CC9AAD2D1B71AA5400626F65 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -160,6 +145,9 @@
 				Base,
 			);
 			mainGroup = CC6D8EBF1B654099005682C0;
+			packageReferences = (
+				BB2D3E4F2F0B0000000B0005 /* XCRemoteSwiftPackageReference "MASShortcut" */,
+			);
 			productRefGroup = CC6D8EC91B654099005682C0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -196,6 +184,7 @@
 				EE92E8FD1F6CC98E00559B7C /* TISInputSource+Additions.swift in Sources */,
 				CC69E0781B66415300A92F58 /* ShortcutViewController.swift in Sources */,
 				AA1B2C3D2F0A0000000A0001 /* ModifierToggleMonitor.swift in Sources */,
+				BB2D3E4F2F0B0000000B0001 /* NotificationManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,10 +315,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = kawa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -350,10 +335,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = kawa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -391,6 +372,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BB2D3E4F2F0B0000000B0005 /* XCRemoteSwiftPackageReference "MASShortcut" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cocoabits/MASShortcut.git";
+			requirement = {
+				kind = branch;
+				branch = master;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BB2D3E4F2F0B0000000B0004 /* MASShortcut */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB2D3E4F2F0B0000000B0005 /* XCRemoteSwiftPackageReference "MASShortcut" */;
+			productName = MASShortcut;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CC6D8EC01B654099005682C0 /* Project object */;
 }

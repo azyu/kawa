@@ -8,11 +8,13 @@ class ShortcutViewController: NSViewController, NSTableViewDataSource, NSTableVi
   func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
     let inputSource = InputSource.sources[row]
 
-    switch tableColumn!.identifier.rawValue {
+    guard let columnIdentifier = tableColumn?.identifier.rawValue else { return nil }
+
+    switch columnIdentifier {
     case "Keyboard":
       return createKeyboardCellView(tableView, inputSource)
     case "Shortcut":
-      return createShorcutCellView(tableView, inputSource)
+      return createShortcutCellView(tableView, inputSource)
     default:
       return nil
     }
@@ -20,12 +22,12 @@ class ShortcutViewController: NSViewController, NSTableViewDataSource, NSTableVi
 
   func createKeyboardCellView(_ tableView: NSTableView, _ inputSource: InputSource) -> NSTableCellView? {
     let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "KeyboardCellView"), owner: self) as? NSTableCellView
-    cell!.textField?.stringValue = inputSource.name
-    cell!.imageView?.image = inputSource.icon
+    cell?.textField?.stringValue = inputSource.name
+    cell?.imageView?.image = inputSource.icon
     return cell
   }
 
-  func createShorcutCellView(_ tableView: NSTableView, _ inputSource: InputSource) -> ShortcutCellView? {
+  func createShortcutCellView(_ tableView: NSTableView, _ inputSource: InputSource) -> ShortcutCellView? {
     let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "ShortcutCellView"), owner: self) as? ShortcutCellView
     cell?.setInputSource(inputSource)
     return cell
