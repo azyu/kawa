@@ -2,11 +2,13 @@ import Cocoa
 
 class PreferencesViewController: NSViewController {
   @IBOutlet weak var showNotificationCheckbox: NSButton!
+  @IBOutlet weak var modifierToggleCheckbox: NSButton!
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
     showNotificationCheckbox.state = PermanentStorage.showsNotification.stateValue
+    modifierToggleCheckbox.state = PermanentStorage.modifierToggleEnabled.stateValue
   }
 
   @IBAction func quitApp(_ sender: NSButton) {
@@ -17,6 +19,15 @@ class PreferencesViewController: NSViewController {
     PermanentStorage.showsNotification = sender.state.boolValue
     if sender.state.boolValue {
       NotificationManager.requestAuthorizationIfNeeded()
+    }
+  }
+
+  @IBAction func toggleModifierToggle(_ sender: NSButton) {
+    PermanentStorage.modifierToggleEnabled = sender.state.boolValue
+    if sender.state.boolValue {
+      ModifierToggleMonitor.shared.start()
+    } else {
+      ModifierToggleMonitor.shared.stop()
     }
   }
 }

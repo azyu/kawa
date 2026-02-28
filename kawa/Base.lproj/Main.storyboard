@@ -159,6 +159,17 @@
                                                 <action selector="showNotification:" target="8tD-vA-uhk" id="mcp-CO-SfQ"/>
                                             </connections>
                                         </button>
+                                        <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mTg-Kd-b2V">
+                                            <rect key="frame" x="14" y="76" width="382" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="check" title="Toggle Korean/Japanese with Left Option + Left Shift" bezelStyle="regularSquare" imagePosition="left" inset="2" id="pLn-Qw-x4R">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="toggleModifierToggle:" target="8tD-vA-uhk" id="vNr-Hy-j7K"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                 </view>
                             </box>
@@ -176,6 +187,7 @@
                         </subviews>
                     </view>
                     <connections>
+                        <outlet property="modifierToggleCheckbox" destination="mTg-Kd-b2V" id="kLm-Nw-p3R"/>
                         <outlet property="showNotificationCheckbox" destination="Ix0-UJ-v3V" id="HxT-bb-QrP"/>
                     </connections>
                 </viewController>

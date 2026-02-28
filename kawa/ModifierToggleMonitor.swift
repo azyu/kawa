@@ -12,8 +12,11 @@ class ModifierToggleMonitor {
 
   private var pressedModifiers: Set<UInt16> = []
   private var eventTap: CFMachPort?
+  private var runLoopSource: CFRunLoopSource?
 
   func start() {
+    guard eventTap == nil else { return }
+
     let eventMask = CGEventMask(1 << CGEventType.flagsChanged.rawValue)
 
     guard let tap = CGEvent.tapCreate(
@@ -33,16 +36,23 @@ class ModifierToggleMonitor {
     }
 
     eventTap = tap
-    let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
+    let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
+    runLoopSource = source
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), source, .commonModes)
     CGEvent.tapEnable(tap: tap, enable: true)
   }
 
   func stop() {
+    if let source = runLoopSource {
+      CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, .commonModes)
+      runLoopSource = nil
+    }
     if let tap = eventTap {
       CGEvent.tapEnable(tap: tap, enable: false)
+      CFMachPortInvalidate(tap)
       eventTap = nil
     }
+    pressedModifiers.removeAll()
   }
 
   private func handleFlagsChanged(_ event: CGEvent) {

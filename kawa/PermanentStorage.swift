@@ -15,6 +15,7 @@ class PermanentStorage {
   private enum StorageKey: String {
     case showsNotification = "show-notification"
     case launchedForTheFirstTime = "launched-for-the-first-time"
+    case modifierToggleEnabled = "modifier-toggle-enabled"
   }
 
   static var showsNotification: Bool {
@@ -32,6 +33,15 @@ class PermanentStorage {
     }
     set {
       set(newValue, forKey: .launchedForTheFirstTime)
+    }
+  }
+
+  static var modifierToggleEnabled: Bool {
+    get {
+      return bool(forKey: .modifierToggleEnabled, withDefault: true)
+    }
+    set {
+      set(newValue, forKey: .modifierToggleEnabled)
     }
   }
 }
