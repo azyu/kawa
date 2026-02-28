@@ -23,6 +23,8 @@ The prebuilt binaries can be found in [Releases](https://github.com/utatti/kawa/
 
 Unzip `Kawa.zip` and move `Kawa.app` to `Applications`.
 
+> **Note**: Prebuilt binaries are **arm64 only** (Apple Silicon).
+
 ## Modifier Toggle (Kawa+)
 
 Kawa+ includes a built-in modifier-only shortcut: pressing **Left Option + Left Shift** toggles between Korean and Japanese input sources.
