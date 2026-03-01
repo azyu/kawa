@@ -29,3 +29,4 @@ kawa.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 *.zip
 
 .DS_Store
+.claude
