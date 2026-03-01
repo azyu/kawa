@@ -15,9 +15,14 @@ class ModifierToggleMonitor {
   private var pressedModifiers: Set<UInt16> = []
   private var eventTap: CFMachPort?
   private var runLoopSource: CFRunLoopSource?
+  private var spaceConsumeTap: CFMachPort?
+  private var spaceConsumeRunLoopSource: CFRunLoopSource?
   private var localKeyMonitor: Any?
 
-  let shiftSpaceMonitor = ShiftSpaceHIDMonitor()
+  // Pure CGEvent state for Shift+Space (replaces ShiftSpaceHIDMonitor)
+  private let deviceLeftShiftMask: UInt64 = 0x00000002
+  private var isLeftShiftHeldForSpace = false
+  private var consumedSpaceKeyDown = false
 
   func start() {
     guard eventTap == nil else { return }
@@ -58,13 +63,26 @@ class ModifierToggleMonitor {
     CFRunLoopAddSource(CFRunLoopGetCurrent(), source, .commonModes)
     CGEvent.tapEnable(tap: tap, enable: true)
 
-    startShiftSpaceMonitor()
-    startLocalKeyMonitor()
+    ensureShiftSpaceState()
+  }
+
+  /// Start/stop space consume tap and local key monitor
+  /// based on the current shiftSpaceToggleEnabled preference.
+  /// Safe to call repeatedly — each sub-component guards against double-start.
+  func ensureShiftSpaceState() {
+    let enabled = PermanentStorage.shiftSpaceToggleEnabled
+    if enabled {
+      startSpaceConsumeTap()
+      startLocalKeyMonitor()
+    } else {
+      stopLocalKeyMonitor()
+      stopSpaceConsumeTap()
+    }
   }
 
   func stop() {
     stopLocalKeyMonitor()
-    stopShiftSpaceMonitor()
+    stopSpaceConsumeTap()
 
     if let source = runLoopSource {
       CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, .commonModes)
@@ -78,22 +96,111 @@ class ModifierToggleMonitor {
     pressedModifiers.removeAll()
   }
 
-  // MARK: - Shift+Space HID Monitor
+  // MARK: - Space Consume Tap (Accessibility, prevents space character)
 
-  private func startShiftSpaceMonitor() {
+  private func startSpaceConsumeTap() {
     guard PermanentStorage.shiftSpaceToggleEnabled else { return }
-    shiftSpaceMonitor.onTrigger = { [weak self] in
-      self?.toggleKoreanEnglish()
+    guard spaceConsumeTap == nil else { return }
+
+    // Request Accessibility permission (shows system dialog if not granted)
+    let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
+    guard AXIsProcessTrustedWithOptions(options) else { return }
+
+    let eventMask = CGEventMask(
+      (1 << CGEventType.keyDown.rawValue)
+      | (1 << CGEventType.keyUp.rawValue)
+      | (1 << CGEventType.flagsChanged.rawValue)
+    )
+
+    guard let tap = CGEvent.tapCreate(
+      tap: .cgSessionEventTap,
+      place: .headInsertEventTap,
+      options: .defaultTap,
+      eventsOfInterest: eventMask,
+      callback: { _, type, event, refcon -> Unmanaged<CGEvent>? in
+        let monitor = Unmanaged<ModifierToggleMonitor>.fromOpaque(refcon!).takeUnretainedValue()
+
+        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+          if let tap = monitor.spaceConsumeTap {
+            CGEvent.tapEnable(tap: tap, enable: true)
+          }
+          return Unmanaged.passUnretained(event)
+        }
+
+        switch type {
+        case .flagsChanged:
+          monitor.handleSpaceTapFlagsChanged(event)
+          return Unmanaged.passUnretained(event)
+        case .keyDown:
+          return monitor.handleKeyDown(event)
+        case .keyUp:
+          return monitor.handleKeyUp(event)
+        default:
+          return Unmanaged.passUnretained(event)
+        }
+      },
+      userInfo: Unmanaged.passUnretained(self).toOpaque()
+    ) else {
+      return
     }
-    shiftSpaceMonitor.start()
+
+    spaceConsumeTap = tap
+    let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
+    spaceConsumeRunLoopSource = source
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), source, .commonModes)
+    CGEvent.tapEnable(tap: tap, enable: true)
   }
 
-  private func stopShiftSpaceMonitor() {
-    shiftSpaceMonitor.stop()
-    shiftSpaceMonitor.onTrigger = nil
+  private func stopSpaceConsumeTap() {
+    if let source = spaceConsumeRunLoopSource {
+      CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, .commonModes)
+      spaceConsumeRunLoopSource = nil
+    }
+    if let tap = spaceConsumeTap {
+      CGEvent.tapEnable(tap: tap, enable: false)
+      CFMachPortInvalidate(tap)
+      spaceConsumeTap = nil
+    }
+    isLeftShiftHeldForSpace = false
+    consumedSpaceKeyDown = false
   }
 
-  // MARK: - Local Key Monitor (beep suppression)
+  // MARK: - Space Consume Tap event handlers
+
+  /// Track Left Shift state from flagsChanged events in the space consume tap.
+  /// Uses NX_DEVICELSHIFTKEYMASK (0x02) to distinguish Left from Right Shift.
+  private func handleSpaceTapFlagsChanged(_ event: CGEvent) {
+    let rawFlags = event.flags.rawValue
+    let hasLeftShift = (rawFlags & deviceLeftShiftMask) != 0
+    isLeftShiftHeldForSpace = hasLeftShift
+  }
+
+  /// Returns nil to consume the event, or the event to pass through.
+  private func handleKeyDown(_ event: CGEvent) -> Unmanaged<CGEvent>? {
+    let keyCode = UInt16(event.getIntegerValueField(.keyboardEventKeycode))
+    guard keyCode == spaceKeyCode else { return Unmanaged.passUnretained(event) }
+    guard event.getIntegerValueField(.keyboardEventAutorepeat) == 0 else { return Unmanaged.passUnretained(event) }
+    guard isLeftShiftHeldForSpace else { return Unmanaged.passUnretained(event) }
+    let unwanted: CGEventFlags = [.maskCommand, .maskControl, .maskAlternate]
+    guard event.flags.isDisjoint(with: unwanted) else { return Unmanaged.passUnretained(event) }
+    let toggled = toggleKoreanEnglish()
+    if toggled {
+      consumedSpaceKeyDown = true
+      return nil
+    }
+    return Unmanaged.passUnretained(event)
+  }
+
+  /// Consume keyUp for Space if the corresponding keyDown was consumed.
+  private func handleKeyUp(_ event: CGEvent) -> Unmanaged<CGEvent>? {
+    let keyCode = UInt16(event.getIntegerValueField(.keyboardEventKeycode))
+    guard keyCode == spaceKeyCode else { return Unmanaged.passUnretained(event) }
+    guard consumedSpaceKeyDown else { return Unmanaged.passUnretained(event) }
+    consumedSpaceKeyDown = false
+    return nil
+  }
+
+  // MARK: - Local Key Monitor (beep suppression fallback)
 
   private func startLocalKeyMonitor() {
     guard localKeyMonitor == nil else { return }
@@ -101,7 +208,6 @@ class ModifierToggleMonitor {
     localKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
       guard let self = self else { return event }
       if self.shouldConsumeAsShiftSpace(event) {
-        self.toggleKoreanEnglish()
         return nil
       }
       return event
@@ -158,28 +264,33 @@ class ModifierToggleMonitor {
     guard PermanentStorage.shiftSpaceToggleEnabled else { return false }
     guard event.keyCode == spaceKeyCode else { return false }
     guard !event.isARepeat else { return false }
-    guard shiftSpaceMonitor.isLeftShiftDown else { return false }
+    guard isLeftShiftHeldForSpace else { return false }
     let unwanted: NSEvent.ModifierFlags = [.command, .control, .option]
     guard event.modifierFlags.isDisjoint(with: unwanted) else { return false }
-    return true
+    return toggleKoreanEnglish()
   }
 
   // MARK: - Input source switching
 
-  private func toggleKoreanEnglish() {
-    guard let currentSource = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue() else { return }
+  /// Returns true if an input source switch actually occurred.
+  @discardableResult
+  private func toggleKoreanEnglish() -> Bool {
+    guard let currentSource = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue() else { return false }
     let currentID = currentSource.id
 
     if currentID == koreanSourceID {
       let sources = InputSource.sources
-      guard let english = sources.first(where: { self.englishSourceIDs.contains($0.id) }) else { return }
+      guard let english = sources.first(where: { self.englishSourceIDs.contains($0.id) }) else { return false }
       english.select()
+      return true
     } else if englishSourceIDs.contains(currentID) {
       let sources = InputSource.sources
       if let target = sources.first(where: { $0.id == koreanSourceID }) {
         target.select()
+        return true
       }
     }
+    return false
   }
 
   private func toggle() {

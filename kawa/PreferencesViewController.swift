@@ -37,12 +37,10 @@ class PreferencesViewController: NSViewController {
     PermanentStorage.shiftSpaceToggleEnabled = sender.state.boolValue
     if sender.state.boolValue {
       ModifierToggleMonitor.shared.start()
-    } else {
-      ModifierToggleMonitor.shared.shiftSpaceMonitor.stop()
-      if !PermanentStorage.modifierToggleEnabled {
-        ModifierToggleMonitor.shared.stop()
-      }
+    } else if !PermanentStorage.modifierToggleEnabled {
+      ModifierToggleMonitor.shared.stop()
     }
+    ModifierToggleMonitor.shared.ensureShiftSpaceState()
   }
 }
 
