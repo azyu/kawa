@@ -71,6 +71,18 @@ cp -R ~/Library/Developer/Xcode/DerivedData/kawa-*/Build/Products/Release/Kawa.a
 **버그 수정/문제 해결 시도 전 반드시 `steering.md`를 먼저 읽을 것.** 이전 시도 기록이 있으며, 같은 접근을 반복하지 않기 위함.
 해결 시도 후 결과와 참고 자료(references)를 반드시 `steering.md`에 기록할 것.
 
+## Definition of Done
+
+- [ ] `xcodebuild -scheme kawa -configuration Release clean build` succeeds (zero errors)
+- [ ] `killall Kawa && cp -R .../Release/Kawa.app /Applications/ && open /Applications/Kawa.app` launches normally
+- [ ] Manual smoke tests pass:
+  - Custom shortcut switches input source
+  - Left Option + Left Shift toggles Korean ↔ Japanese
+  - Left Shift + Space toggles Korean ↔ English (when enabled in Prefs)
+  - Prefs OFF→ON / ON→OFF dynamic toggle works
+- [ ] Changes and results recorded in `steering.md`
+- [ ] Commit message follows conventional commits format
+
 ## Known Issues
 
 - **CJKV input sources**: Known Carbon bug with `TISSelectInputSource` for some CJK input methods.
