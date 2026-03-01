@@ -24,6 +24,10 @@ class ModifierToggleMonitor {
   private var isLeftShiftHeldForSpace = false
   private var consumedSpaceKeyDown = false
 
+  // Cached input sources to avoid enumerating all sources in hot path
+  private var cachedKoreanSource: InputSource?
+  private var cachedEnglishSource: InputSource?
+
   func start() {
     guard eventTap == nil else { return }
 
@@ -72,11 +76,14 @@ class ModifierToggleMonitor {
   func ensureShiftSpaceState() {
     let enabled = PermanentStorage.shiftSpaceToggleEnabled
     if enabled {
+      warmSourceCache()
       startSpaceConsumeTap()
       startLocalKeyMonitor()
     } else {
       stopLocalKeyMonitor()
       stopSpaceConsumeTap()
+      cachedKoreanSource = nil
+      cachedEnglishSource = nil
     }
   }
 
@@ -94,6 +101,16 @@ class ModifierToggleMonitor {
       eventTap = nil
     }
     pressedModifiers.removeAll()
+    cachedKoreanSource = nil
+    cachedEnglishSource = nil
+  }
+
+  // MARK: - Input source cache
+
+  private func warmSourceCache() {
+    let sources = InputSource.sources
+    cachedKoreanSource = sources.first { $0.id == koreanSourceID }
+    cachedEnglishSource = sources.first { englishSourceIDs.contains($0.id) }
   }
 
   // MARK: - Space Consume Tap (Accessibility, prevents space character)
@@ -171,8 +188,7 @@ class ModifierToggleMonitor {
   /// Uses NX_DEVICELSHIFTKEYMASK (0x02) to distinguish Left from Right Shift.
   private func handleSpaceTapFlagsChanged(_ event: CGEvent) {
     let rawFlags = event.flags.rawValue
-    let hasLeftShift = (rawFlags & deviceLeftShiftMask) != 0
-    isLeftShiftHeldForSpace = hasLeftShift
+    isLeftShiftHeldForSpace = (rawFlags & deviceLeftShiftMask) != 0
   }
 
   /// Returns nil to consume the event, or the event to pass through.
@@ -207,7 +223,8 @@ class ModifierToggleMonitor {
     guard PermanentStorage.shiftSpaceToggleEnabled else { return }
     localKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
       guard let self = self else { return event }
-      if self.shouldConsumeAsShiftSpace(event) {
+      // Only suppress beep — CGEvent tap already handled the toggle
+      if self.isShiftSpaceEvent(event) {
         return nil
       }
       return event
@@ -260,35 +277,33 @@ class ModifierToggleMonitor {
 
   // MARK: - Shift+Space helpers
 
-  private func shouldConsumeAsShiftSpace(_ event: NSEvent) -> Bool {
+  /// Check if event is a Shift+Space without side effects (beep suppression only).
+  private func isShiftSpaceEvent(_ event: NSEvent) -> Bool {
     guard PermanentStorage.shiftSpaceToggleEnabled else { return false }
     guard event.keyCode == spaceKeyCode else { return false }
     guard !event.isARepeat else { return false }
     guard isLeftShiftHeldForSpace else { return false }
     let unwanted: NSEvent.ModifierFlags = [.command, .control, .option]
-    guard event.modifierFlags.isDisjoint(with: unwanted) else { return false }
-    return toggleKoreanEnglish()
+    return event.modifierFlags.isDisjoint(with: unwanted)
   }
 
   // MARK: - Input source switching
 
   /// Returns true if an input source switch actually occurred.
+  /// Uses cached sources to avoid InputSource.sources enumeration in hot path.
   @discardableResult
   private func toggleKoreanEnglish() -> Bool {
     guard let currentSource = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue() else { return false }
     let currentID = currentSource.id
 
     if currentID == koreanSourceID {
-      let sources = InputSource.sources
-      guard let english = sources.first(where: { self.englishSourceIDs.contains($0.id) }) else { return false }
+      guard let english = cachedEnglishSource else { return false }
       english.select()
       return true
     } else if englishSourceIDs.contains(currentID) {
-      let sources = InputSource.sources
-      if let target = sources.first(where: { $0.id == koreanSourceID }) {
-        target.select()
-        return true
-      }
+      guard let korean = cachedKoreanSource else { return false }
+      korean.select()
+      return true
     }
     return false
   }

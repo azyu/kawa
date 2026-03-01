@@ -26,18 +26,18 @@ class PreferencesViewController: NSViewController {
 
   @IBAction func toggleModifierToggle(_ sender: NSButton) {
     PermanentStorage.modifierToggleEnabled = sender.state.boolValue
-    if sender.state.boolValue {
-      ModifierToggleMonitor.shared.start()
-    } else if !PermanentStorage.shiftSpaceToggleEnabled {
-      ModifierToggleMonitor.shared.stop()
-    }
+    updateMonitorState()
   }
 
   @IBAction func toggleShiftSpaceToggle(_ sender: NSButton) {
     PermanentStorage.shiftSpaceToggleEnabled = sender.state.boolValue
-    if sender.state.boolValue {
+    updateMonitorState()
+  }
+
+  private func updateMonitorState() {
+    if PermanentStorage.modifierToggleEnabled || PermanentStorage.shiftSpaceToggleEnabled {
       ModifierToggleMonitor.shared.start()
-    } else if !PermanentStorage.modifierToggleEnabled {
+    } else {
       ModifierToggleMonitor.shared.stop()
     }
     ModifierToggleMonitor.shared.ensureShiftSpaceState()
@@ -46,12 +46,12 @@ class PreferencesViewController: NSViewController {
 
 private extension Bool {
   var stateValue: NSControl.StateValue {
-    return self ? .on : .off;
+    return self ? .on : .off
   }
 }
 
 private extension NSControl.StateValue {
   var boolValue: Bool {
-    return self == .on;
+    return self == .on
   }
 }
